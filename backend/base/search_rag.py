@@ -70,10 +70,19 @@ class SearchRagManager:
 
 
     def search(self, query: str) -> List[SearchResult]:
+        import logging
+        logger = logging.getLogger(__name__)
+        
         if not self.search_runner:
-            raise ValueError("SearcherRunner is not initialized.")
-        results = self.search_runner.invoke(query)
-        return results
+            logger.warning("SearcherRunner is not initialized, returning empty results.")
+            return []
+        
+        try:
+            results = self.search_runner.invoke(query)
+            return results
+        except Exception as e:
+            logger.error(f"Search failed: {str(e)}", exc_info=True)
+            return []
 
     def add_documents(self, documents: List[Document]) -> None:
         if len(documents) == 0:
@@ -97,11 +106,26 @@ class SearchRagManager:
         return retrieval
 
     def invoke(self, query: str) -> List[Document]:
-        results = self.search(query)
-        documents = [res.document for res in results if res.document is not None]
-        self.add_documents(documents=documents)
-        retrieved_docs = self.retrieve(query)
-        return retrieved_docs
+        import logging
+        logger = logging.getLogger(__name__)
+        
+        try:
+            results = self.search(query)
+            documents = [res.document for res in results if res.document is not None]
+            
+            if documents:
+                try:
+                    self.add_documents(documents=documents)
+                except Exception as e:
+                    logger.warning(f"Failed to add documents to vectorstore: {str(e)}")
+                    # 继续执行，即使添加文档失败
+            
+            retrieved_docs = self.retrieve(query)
+            return retrieved_docs
+        except Exception as e:
+            logger.error(f"Error in SearchRagManager.invoke: {str(e)}", exc_info=True)
+            # 返回空列表而不是抛出异常
+            return []
 
 
 def format_docs(docs: List[Document]) -> str:

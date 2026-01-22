@@ -282,6 +282,9 @@ async def draft_knowledge_points(request: KnowledgePointsDraftingRequest):
         knowledge_drafts = draft_knowledge_points_with_llm(llm, learner_profile, learning_path, learning_session, knowledge_points, allow_parallel, use_search)
         return {"knowledge_drafts": knowledge_drafts}
     except Exception as e:
+        import traceback
+        error_detail = f"Error: {str(e)}\n\nTraceback:\n{traceback.format_exc()}"
+        print(error_detail)  # 打印到控制台
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/integrate-learning-document")

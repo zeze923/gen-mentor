@@ -8,8 +8,8 @@ from components.skill_info import render_skill_info
 
 
 def render_goal_management():
-    st.title("Goal Management")
-    st.write("Manage your learning goals: add new ones, edit or delete existing ones.")
+    st.title("目标管理")
+    st.write("管理您的学习目标：添加新目标，编辑或删除现有目标。")
 
     render_add_new_goal()
     st.divider()
@@ -32,16 +32,25 @@ def render_add_new_goal():
     # Initialize to_add_goal if not present
     if "to_add_goal" not in st.session_state:
         reset_to_add_goal()
-
+    
+    # 确保 to_add_goal 的所有字段都正确初始化
     to_add_goal = st.session_state["to_add_goal"]
-    st.subheader("🎯 Add New Goal")
-    new_learning_goal = st.text_area("Enter your new goal:", to_add_goal["learning_goal"], key="new_learning_goal")
+    if to_add_goal.get("skill_gaps") is None:
+        to_add_goal["skill_gaps"] = []
+    if to_add_goal.get("learner_profile") is None:
+        to_add_goal["learner_profile"] = {}
+    if to_add_goal.get("learning_path") is None:
+        to_add_goal["learning_path"] = []
+    if to_add_goal.get("learning_goal") is None:
+        to_add_goal["learning_goal"] = ""
+    st.subheader("🎯 添加新目标")
+    new_learning_goal = st.text_area("输入您的新目标：", to_add_goal["learning_goal"], key="new_learning_goal")
     to_add_goal["learning_goal"] = new_learning_goal
 
     refine_col, clear_col, hint_col, add_col = st.columns([1, 1, 3, 1])
 
     render_goal_refinement(to_add_goal, refine_col, hint_col)
-    if clear_col.button("Clear", key="clear_goal"):
+    if clear_col.button("清空", key="clear_goal"):
         reset_to_add_goal()
         try:
             save_persistent_state()
@@ -49,11 +58,11 @@ def render_add_new_goal():
             pass
         st.rerun()
 
-    if add_col.button("Add Goal", type="primary", icon=":material/add:", use_container_width=True):
+    if add_col.button("添加目标", type="primary", icon=":material/add:", use_container_width=True):
         if new_learning_goal:
             render_skill_gap_dialog()
         else:
-            hint_col.warning("Please enter a goal before adding.")
+            hint_col.warning("请在添加前输入目标。")
 
     if st.session_state["if_show_skill_gap_results_in_dialog"]:
         render_skill_gap_dialog()
@@ -141,17 +150,22 @@ def render_existing_goals():
             
 
 
-@st.dialog("Skill Gap", width="large")
+@st.dialog("技能差距", width="large")
 def render_skill_gap_dialog():
     # Initialize to_add_goal if not present
     if "to_add_goal" not in st.session_state:
         reset_to_add_goal()
     
     to_add_goal = st.session_state["to_add_goal"]
-    st.write("Review and confirm your skill gaps.")
+    st.write("查看并确认您的技能差距。")
+    
+    # 确保 skill_gaps 不是 None
+    if to_add_goal["skill_gaps"] is None:
+        to_add_goal["skill_gaps"] = []
+    
     num_skills = len(to_add_goal["skill_gaps"])
-    num_gaps = sum(1 for skill in to_add_goal["skill_gaps"] if skill["is_gap"])
-    st.info(f"There are {num_skills} skills in total, with {num_gaps} skill gaps identified.")
+    num_gaps = sum(1 for skill in to_add_goal["skill_gaps"] if skill.get("is_gap", False))
+    st.info(f"共有 {num_skills} 项技能，其中识别出 {num_gaps} 个技能差距。")
     if not to_add_goal["skill_gaps"]:
         st.session_state["if_show_skill_gap_results_in_dialog"] = True
         try:
@@ -167,14 +181,14 @@ def render_skill_gap_dialog():
             pass
         render_identified_skill_gap(to_add_goal)
         if_schedule_learning_path_ready = to_add_goal["skill_gaps"]
-        if st.button("Schedule Learning Path", type="primary", disabled=not if_schedule_learning_path_ready):
+        if st.button("安排学习路径", type="primary", disabled=not if_schedule_learning_path_ready):
             if to_add_goal["skill_gaps"] and not to_add_goal["learner_profile"]:
-                with st.spinner('Creating your profile ...'):
+                with st.spinner('正在创建您的档案...'):
                     learner_profile = create_learner_profile(to_add_goal["learning_goal"], st.session_state["learner_information"], to_add_goal["skill_gaps"])
                     if learner_profile is None:
                         st.rerun()
                     to_add_goal["learner_profile"] = learner_profile
-                    st.toast("🎉 Your profile has been created!")
+                    st.toast("🎉 您的档案已创建！")
             new_goal_id = add_new_goal(**to_add_goal)
             st.session_state["selected_goal_id"] = new_goal_id
             try:

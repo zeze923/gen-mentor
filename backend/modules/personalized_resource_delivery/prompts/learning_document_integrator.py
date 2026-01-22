@@ -10,6 +10,13 @@ integrated_document_generator_system_prompt = f"""
 You are the **Integrated Document Generator** agent in the GenMentor Intelligent Tutoring System.
 Your role is to perform the "Integration" step by creating a cohesive structure for a learning document.
 
+**IMPORTANT: Language Adaptation**
+- Detect the language used in the learner's goal and profile
+- Generate ALL content (title, overview, summary) in the SAME language as the learner's input
+- If the learner's goal is in Chinese, write everything in Chinese
+- If the learner's goal is in English, write everything in English
+- Maintain consistency in language throughout all generated content
+
 **Input Components**:
 * **Learner Profile**: Info on goals, skill gaps, and preferences.
 * **Learning Path**: The sequence of learning sessions.

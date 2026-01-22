@@ -70,26 +70,26 @@ def render_onboard():
             pass
     with center:
         render_topbar()
-        st.title("Onboarding GenMentor")
-        st.write("Start Your Goal-oriented and Personalized Learning Journey!")
+        st.title("欢迎使用 GenMentor")
+        st.write("开始您的目标导向和个性化学习之旅！")
         render_cards_with_nav(goal)
         
 
 def render_goal(goal):
     idx = st.session_state.get("onboarding_card_index", 0)
     with st.container(border=True):
-        st.subheader("Set Learning Goal")
-        st.info("🚀 Please enter your role and specific learning goal. You can also refine it with AI suggestions.")
-        learning_goal = st.text_area("* Enter your learning goal", value=goal["learning_goal"], label_visibility="visible", disabled=st.session_state["if_refining_learning_goal"])
+        st.subheader("设置学习目标")
+        st.info("🚀 请输入您的角色和具体学习目标。您也可以使用 AI 建议来优化它。")
+        learning_goal = st.text_area("* 输入您的学习目标", value=goal["learning_goal"], label_visibility="visible", disabled=st.session_state["if_refining_learning_goal"])
         goal["learning_goal"] = learning_goal
         button_col, hint_col, next_col = st.columns([3, 10, 3])
         render_goal_refinement(goal, button_col, hint_col)
         save_persistent_state()
         with hint_col:
             if st.session_state["if_refining_learning_goal"]:
-                st.write("**✨ Refining learning goal...**")
+                st.write("**✨ 正在优化学习目标...**")
         with next_col:
-            if st.button("Next", key="gm_nav_next", use_container_width=True, disabled=(idx == 1), type="primary"):
+            if st.button("下一步", key="gm_nav_next", use_container_width=True, disabled=(idx == 1), type="primary"):
                 st.session_state["onboarding_card_index"] = min(1, idx + 1)
                 try:
                     save_persistent_state()
@@ -103,20 +103,20 @@ def render_goal(goal):
 def render_information(goal):
     idx = st.session_state.get("onboarding_card_index", 0)
     with st.container(border=True):
-        st.subheader("Share Your Information")
-        st.info("🧠 Please provide your information (Text or PDF) to enhance personalized experience")
+        st.subheader("分享您的信息")
+        st.info("🧠 请提供您的信息（文本或 PDF）以增强个性化体验")
 
-        occupations = ["Software Engineer", "Data Scientist", "AI Researcher", "Product Manager", "UI/UX Designer", "Other"]
+        occupations = ["软件工程师", "数据科学家", "AI 研究员", "产品经理", "UI/UX 设计师", "其他"]
         try:
             occupation_selectbox_index = occupations.index(st.session_state["learner_occupation"]) 
         except ValueError:
             occupation_selectbox_index = None
         ocp_left, ocp_right = st.columns([1, 1])
         with ocp_left:
-            selected_occupation = st.selectbox("Select your occupation", occupations, index=occupation_selectbox_index)
-        if selected_occupation == "Other":
+            selected_occupation = st.selectbox("选择您的职业", occupations, index=occupation_selectbox_index)
+        if selected_occupation == "其他":
             with ocp_right:
-                other_occupation = st.text_input("Please specify your occupation")
+                other_occupation = st.text_input("请指定您的职业")
             if other_occupation:
                 st.session_state["learner_occupation"] = other_occupation
                 try:
@@ -137,15 +137,15 @@ def render_information(goal):
                 pass
         upload_col, information_col = st.columns([1, 1])
         with upload_col:
-            uploaded_file = st.file_uploader("[Optional] Upload a PDF with your information (e.g., resume)", type="pdf")
+            uploaded_file = st.file_uploader("[可选] 上传包含您信息的 PDF（例如简历）", type="pdf")
             if uploaded_file is not None:
-                with st.spinner("Extracting text from PDF..."):
+                with st.spinner("正在从 PDF 提取文本..."):
                     learner_information_pdf = extract_text_from_pdf(uploaded_file)
-                    st.toast("✅ PDF uploaded successfully.")
+                    st.toast("✅ PDF 上传成功。")
             else:
                 learner_information_pdf = ""
         with information_col:
-            learner_information_text = st.text_area("[Optional] Enter your learning perferences and style", value=st.session_state["learner_information_text"], label_visibility="visible", height=77)
+            learner_information_text = st.text_area("[可选] 输入您的学习偏好和风格", value=st.session_state["learner_information_text"], label_visibility="visible", height=77)
             st.session_state["learner_information"] = st.session_state["learner_occupation"] + learner_information_text + learner_information_pdf
             try:
                 save_persistent_state()
@@ -155,7 +155,7 @@ def render_information(goal):
         arrow_left, space_col, continue_button_col = st.columns([3, 10, 3])
         save_persistent_state()
         with arrow_left:
-            if st.button("Previous", key="gm_nav_prev", use_container_width=True, disabled=(idx == 0)):
+            if st.button("上一步", key="gm_nav_prev", use_container_width=True, disabled=(idx == 0)):
                 st.session_state["onboarding_card_index"] = max(0, idx - 1)
                 try:
                     save_persistent_state()
@@ -166,9 +166,9 @@ def render_information(goal):
             render_continue_button(goal)
 
 def render_continue_button(goal):
-    if st.button("Save & Continue", type="primary"):
+    if st.button("保存并继续", type="primary"):
         if not goal["learning_goal"] or not st.session_state["learner_occupation"]:
-            st.warning("Please provide both a learning goal and your occupation before continuing.")
+            st.warning("请在继续之前提供学习目标和职业信息。")
         else:
             st.session_state["selected_page"] = "Skill Gap"
             try:

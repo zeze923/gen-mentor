@@ -46,24 +46,39 @@ class SearchEnhancedKnowledgeDrafter(BaseAgent):
         self.use_search = use_search
 
     def draft(self, payload: KnowledgeDraftPayload | Mapping[str, Any] | str):
+        import logging
+        logger = logging.getLogger(__name__)
+        
         if not isinstance(payload, KnowledgeDraftPayload):
             payload = KnowledgeDraftPayload.model_validate(payload)
         data = payload.model_dump()
+        
         # Optionally enrich external resources using the search RAG manager
         if self.use_search and self.search_rag_manager is not None:
-            session = data.get("learning_session") or {}
-            session_title = str(session.get("title", "")).strip() or "learning_session"
-            knowledge_point = data.get("knowledge_point") or {}
-            knowledge_point_name = str(knowledge_point.get('name', '')).strip()
-            query = f"{session_title} {knowledge_point_name}".strip()
-            docs = self.search_rag_manager.invoke(query)
-            context = format_docs(docs)
-            if context:
-                ext = data.get("external_resources") or ""
-                data["external_resources"] = f"{ext}{context}"
-        raw_output = self.invoke(data, task_prompt=search_enhanced_knowledge_drafter_task_prompt)
-        validated_output = KnowledgeDraft.model_validate(raw_output)
-        return validated_output.model_dump()
+            try:
+                session = data.get("learning_session") or {}
+                session_title = str(session.get("title", "")).strip() or "learning_session"
+                knowledge_point = data.get("knowledge_point") or {}
+                knowledge_point_name = str(knowledge_point.get('name', '')).strip()
+                query = f"{session_title} {knowledge_point_name}".strip()
+                logger.info(f"Searching for: {query}")
+                docs = self.search_rag_manager.invoke(query)
+                context = format_docs(docs)
+                if context:
+                    ext = data.get("external_resources") or ""
+                    data["external_resources"] = f"{ext}{context}"
+                    logger.info(f"Added {len(docs)} documents to external resources")
+            except Exception as e:
+                logger.warning(f"Search failed for knowledge point, continuing without external resources: {str(e)}")
+                # 继续执行，不使用外部资源
+        
+        try:
+            raw_output = self.invoke(data, task_prompt=search_enhanced_knowledge_drafter_task_prompt)
+            validated_output = KnowledgeDraft.model_validate(raw_output)
+            return validated_output.model_dump()
+        except Exception as e:
+            logger.error(f"Error drafting knowledge point: {str(e)}", exc_info=True)
+            raise
 
 def draft_knowledge_point_with_llm(
     llm,
@@ -77,15 +92,22 @@ def draft_knowledge_point_with_llm(
     search_rag_manager: Optional[SearchRagManager] = None,
 ):
     """Draft a single knowledge point using the agent, optionally enriching with a SearchRagManager."""
-    drafter = SearchEnhancedKnowledgeDrafter(llm, search_rag_manager=search_rag_manager, use_search=use_search)
-    payload = {
-        "learner_profile": learner_profile,
-        "learning_path": learning_path,
-        "learning_session": learning_session,
-        "knowledge_points": knowledge_points,
-        "knowledge_point": knowledge_point,
-    }
-    return drafter.draft(payload)
+    import logging
+    logger = logging.getLogger(__name__)
+    
+    try:
+        drafter = SearchEnhancedKnowledgeDrafter(llm, search_rag_manager=search_rag_manager, use_search=use_search)
+        payload = {
+            "learner_profile": learner_profile,
+            "learning_path": learning_path,
+            "learning_session": learning_session,
+            "knowledge_points": knowledge_points,
+            "knowledge_point": knowledge_point,
+        }
+        return drafter.draft(payload)
+    except Exception as e:
+        logger.error(f"Error in draft_knowledge_point_with_llm: {str(e)}", exc_info=True)
+        raise
 
 
 def draft_knowledge_points_with_llm(
@@ -101,23 +123,40 @@ def draft_knowledge_points_with_llm(
     search_rag_manager: Optional[SearchRagManager] = None,
 ):
     """Draft multiple knowledge points in parallel or sequentially using the agent."""
+    import logging
+    logger = logging.getLogger(__name__)
+    
     if isinstance(learning_session, str):
         learning_session = ast.literal_eval(learning_session)
     if isinstance(knowledge_points, str):
         knowledge_points = ast.literal_eval(knowledge_points)
     if search_rag_manager is None and use_search:
-        search_rag_manager = SearchRagManager.from_config(default_config)
+        try:
+            search_rag_manager = SearchRagManager.from_config(default_config)
+        except Exception as e:
+            logger.warning(f"Failed to initialize SearchRagManager: {e}. Continuing without search.")
+            use_search = False
+            search_rag_manager = None
+    
     def draft_one(kp):
-        return draft_knowledge_point_with_llm(
-            llm,
-            learner_profile,
-            learning_path,
-            learning_session,
-            knowledge_points,
-            kp,
-            use_search=use_search,
-            search_rag_manager=search_rag_manager,
-        )
+        try:
+            return draft_knowledge_point_with_llm(
+                llm,
+                learner_profile,
+                learning_path,
+                learning_session,
+                knowledge_points,
+                kp,
+                use_search=use_search,
+                search_rag_manager=search_rag_manager,
+            )
+        except Exception as e:
+            logger.error(f"Error drafting knowledge point {kp.get('name', 'unknown')}: {str(e)}", exc_info=True)
+            # 返回一个基本的草稿，而不是失败
+            return {
+                "title": kp.get('name', 'Unknown'),
+                "content": f"**{kp.get('name', 'Unknown')}**\n\n内容生成失败，请重试。\n\nError: {str(e)}"
+            }
 
     if allow_parallel:
         with ThreadPoolExecutor(max_workers=max_workers) as executor:

@@ -18,8 +18,8 @@ def render_learning_path():
         if not goal["skill_gaps"]:
             st.switch_page("pages/skill_gap.py")
 
-    st.title("Learning Path")
-    st.write("Track your learning progress through the sessions below.")
+    st.title("学习路径")
+    st.write("通过以下课程跟踪您的学习进度。")
 
     st.markdown("""
         <style>
@@ -31,10 +31,10 @@ def render_learning_path():
         </style>
     """, unsafe_allow_html=True)
     if not goal["learning_path"]:
-        with st.spinner('Scheduling Learning Path ...'):
+        with st.spinner('正在安排学习路径...'):
             goal["learning_path"] = schedule_learning_path(goal["learner_profile"], session_count=8)
             save_persistent_state()
-            st.toast("🎉 Successfully schedule learning path!")
+            st.toast("🎉 学习路径安排成功！")
             st.rerun()
         my_bar.empty()
     else:
@@ -44,16 +44,16 @@ def render_learning_path():
 
 def render_overall_information(goal):
     with st.container(border=True):
-        st.write("#### 🎯 Current Goal")
-        st.text_area("In-progress Goal", value=goal["learning_goal"], disabled=True, help="Change this in the Goal Management section.")
+        st.write("#### 🎯 当前目标")
+        st.text_area("进行中的目标", value=goal["learning_goal"], disabled=True, help="在目标管理部分更改此项。")
         learned_sessions = sum(1 for s in goal["learning_path"] if s["if_learned"])
         total_sessions = len(goal["learning_path"])
         if total_sessions == 0:
-            st.warning("No learning sessions found.")
+            st.warning("未找到学习课程。")
             progress = 0
         else:
             progress = int((learned_sessions / total_sessions) * 100)
-        st.write("#### 📊 Overall Progress")
+        st.write("#### 📊 总体进度")
         with st.container():
             st.progress(progress)
             st.write(f"{learned_sessions}/{total_sessions} sessions completed ({progress}%)")

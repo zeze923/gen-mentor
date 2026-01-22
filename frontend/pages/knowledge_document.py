@@ -115,7 +115,7 @@ def render_session_details(goal):
 
     col1, col2, col3, col4 = st.columns([1, 2, 1, 1])
     with col1:
-        if st.button("Back", icon=":material/arrow_back:", key="back-learning-center"):
+        if st.button("返回", icon=":material/arrow_back:", key="back-learning-center"):
             st.session_state["selected_page"] = "Learning Path"
             st.session_state["current_page"][session_uid] = 0
 
@@ -126,7 +126,7 @@ def render_session_details(goal):
                 pass
 
     with col3:
-        if st.button("Regenerate", icon=":material/refresh:", key="regenerate-content-top"):
+        if st.button("重新生成", icon=":material/refresh:", key="regenerate-content-top"):
             st.session_state["document_caches"].pop(session_uid)
             try:
                 save_persistent_state()
@@ -139,7 +139,7 @@ def render_session_details(goal):
     with col4:
         complete_button_status = True if session_info["if_learned"] else False
 
-        if st.button("Complete Session", 
+        if st.button("完成课程", 
                      key="complete-session-bottom", type="primary", icon=":material/task_alt:", 
                     #  on_click=update_learner_profile_with_feedback, kwargs={"feedback_data": "", "goal": goal, "session_information": session_info},
                      use_container_width=True, disabled=complete_button_status or st.session_state["if_updating_learner_profile"]):

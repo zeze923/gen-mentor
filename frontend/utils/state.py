@@ -139,6 +139,16 @@ def initialize_session_state():
 
     if "to_add_goal" not in st.session_state:
         reset_to_add_goal()
+    else:
+        # 确保现有的 to_add_goal 有所有必需的字段
+        if st.session_state["to_add_goal"].get("skill_gaps") is None:
+            st.session_state["to_add_goal"]["skill_gaps"] = []
+        if st.session_state["to_add_goal"].get("learner_profile") is None:
+            st.session_state["to_add_goal"]["learner_profile"] = {}
+        if st.session_state["to_add_goal"].get("learning_path") is None:
+            st.session_state["to_add_goal"]["learning_path"] = []
+        if st.session_state["to_add_goal"].get("learning_goal") is None:
+            st.session_state["to_add_goal"]["learning_goal"] = ""
 
     if 'learned_skills_history' not in st.session_state:
         st.session_state['learned_skills_history'] = {}

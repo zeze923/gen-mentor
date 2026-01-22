@@ -26,13 +26,13 @@ try:
 except Exception:
     pass
 
-@st.dialog("Confirm Reset")
+@st.dialog("确认重置")
 def show_reset_dialog():
-    st.warning("All history will be cleared. Do you reset not?")
+    st.warning("所有历史记录将被清除。您确定要重置吗？")
     st.divider()
     col_confirm, _space, col_cancel = st.columns([1, 2, 0.7])
     with col_confirm:
-        if st.button("Confirm", type="primary"):
+        if st.button("确认", type="primary"):
             from pathlib import Path
             from datetime import datetime
             import shutil
@@ -75,7 +75,7 @@ def show_reset_dialog():
                 except Exception:
                     pass
     with col_cancel:
-        if st.button("Cancel"):
+        if st.button("取消"):
             # simply rerun to close the dialog without changes
             try:
                 st.rerun()
@@ -89,16 +89,16 @@ if st.session_state["show_chatbot"]:
     render_chatbot()
 
 if st.session_state["if_complete_onboarding"]:
-    onboarding = st.Page("pages/onboarding.py", title="Onboarding", icon=":material/how_to_reg:", default=False, url_path="onboarding")
-    learning_path = st.Page("pages/learning_path.py", title="Learning Path", icon=":material/route:", default=True, url_path="learning_path")
+    onboarding = st.Page("pages/onboarding.py", title="入门引导", icon=":material/how_to_reg:", default=False, url_path="onboarding")
+    learning_path = st.Page("pages/learning_path.py", title="学习路径", icon=":material/route:", default=True, url_path="learning_path")
 else:
-    onboarding = st.Page("pages/onboarding.py", title="Onboarding", icon=":material/how_to_reg:", default=True, url_path="onboarding")
-    learning_path = st.Page("pages/learning_path.py", title="Learning Path", icon=":material/route:", default=False, url_path="learning_path")
-skill_gaps = st.Page("pages/skill_gap.py", title="Skill Gap", icon=":material/insights:", default=False, url_path="skill_gap")
-knowledge_document = st.Page("pages/knowledge_document.py", title="Resume Learning", icon=":material/menu_book:", default=False, url_path="knowledge_document")
-learner_profile = st.Page("pages/learner_profile.py", title="My Profile", icon=":material/person:", default=False, url_path="learner_profile")
-goal_management = st.Page("pages/goal_management.py", title="Goal Management", icon=":material/flag:", default=False, url_path="goal_management")
-dashboard = st.Page("pages/dashboard.py", title="Analytics Dashboard", icon=":material/browse:", default=False, url_path="dashboard")
+    onboarding = st.Page("pages/onboarding.py", title="入门引导", icon=":material/how_to_reg:", default=True, url_path="onboarding")
+    learning_path = st.Page("pages/learning_path.py", title="学习路径", icon=":material/route:", default=False, url_path="learning_path")
+skill_gaps = st.Page("pages/skill_gap.py", title="技能差距", icon=":material/insights:", default=False, url_path="skill_gap")
+knowledge_document = st.Page("pages/knowledge_document.py", title="继续学习", icon=":material/menu_book:", default=False, url_path="knowledge_document")
+learner_profile = st.Page("pages/learner_profile.py", title="我的档案", icon=":material/person:", default=False, url_path="learner_profile")
+goal_management = st.Page("pages/goal_management.py", title="目标管理", icon=":material/flag:", default=False, url_path="goal_management")
+dashboard = st.Page("pages/dashboard.py", title="学习分析", icon=":material/browse:", default=False, url_path="dashboard")
 
 # Learning Analytics Dashboard
 if not st.session_state["if_complete_onboarding"]:
@@ -110,7 +110,7 @@ else:
     with st.sidebar:
         _left, _center, _right = st.columns([2, 2, 2])
         with _center:
-            if st.button("Reset", help="Clear local history (keeps timestamped backups)"):
+            if st.button("重置", help="清除本地历史记录（保留时间戳备份）"):
                 show_reset_dialog()
     goal = st.session_state["goals"][st.session_state["selected_goal_id"]]
     goal['start_time'] = time.time()
