@@ -9,8 +9,8 @@ from utils.state import get_current_session_uid
 def render_dashboard():
     # Initialize goals if not present
     if "goals" not in st.session_state or not st.session_state["goals"]:
-        st.warning("No goals found. Please create a goal first.")
-        if st.button("Go to Goal Management"):
+        st.warning("未找到目标。请先创建一个目标。")
+        if st.button("前往目标管理"):
             st.switch_page("pages/goal_management.py")
         return
     
@@ -24,10 +24,10 @@ def render_dashboard():
     goal = st.session_state["goals"][st.session_state["selected_goal_id"]]
 
     if not goal["learner_profile"]:
-        st.warning("Please wait for the learning path to be scheduled to view the dashboard.")
+        st.warning("请等待学习路径安排完成后查看仪表板。")
 
-    st.title("Learning Analytics")
-    st.write("Track your learning progress and view learning insights here.")
+    st.title("学习分析")
+    st.write("在这里跟踪您的学习进度并查看学习洞察。")
     with st.container(border=True):
         render_learning_progress(goal)
     with st.container(border=True):
@@ -39,8 +39,8 @@ def render_dashboard():
 
 
 def render_learning_progress(goal):
-    st.markdown("#### Learning Progress")
-    st.write("View the learning progress for each session.")
+    st.markdown("#### 学习进度")
+    st.write("查看每个课程的学习进度。")
     learner_profile = goal["learner_profile"]
     overall_progress = learner_profile["cognitive_status"]["overall_progress"]
     st.progress(overall_progress)
@@ -49,12 +49,12 @@ def render_learning_progress(goal):
 def render_skill_radar_chart(goal):
     import plotly.graph_objects as go
 
-    st.markdown("#### Proficiency Levels for Different Skills")
+    st.markdown("#### 不同技能的熟练程度")
     # st.write("View the skill radar chart for your learning progress.")
     learner_profile = goal["learner_profile"]
     mastered_skills = learner_profile["cognitive_status"]["mastered_skills"]
     in_progress_skills = learner_profile["cognitive_status"]["in_progress_skills"]
-    level_map = defaultdict(lambda: 0, {"unlearned": 0, "beginner": 1, "intermediate": 2, "advanced": 3})
+    level_map = defaultdict(lambda: 0, {"unlearned": 0, "未学习": 0, "beginner": 1, "初级": 1, "intermediate": 2, "中级": 2, "advanced": 3, "高级": 3})
     mastered_skills = [{
         "name": skill_info["name"], 
         "required_level": skill_info["proficiency_level"], 
@@ -67,7 +67,7 @@ def render_skill_radar_chart(goal):
     skill_names = [skill["name"] for skill in skills]
     current_levels = [level_map[skill["current_level"]] for skill in skills]
     required_levels = [level_map[skill["required_level"]] for skill in skills]
-    st.write(f"You have mastered {len(mastered_skills)} skills and are currently learning {len(in_progress_skills)} skills.")
+    st.write(f"您已掌握 {len(mastered_skills)} 项技能，目前正在学习 {len(in_progress_skills)} 项技能。")
 
     fig = go.Figure()
 
@@ -75,13 +75,13 @@ def render_skill_radar_chart(goal):
         r=current_levels,
         theta=skill_names,
         fill='toself',
-        name='Current Proficiency Level',
+        name='当前熟练程度',
     ))
     fig.add_trace(go.Scatterpolar(
         r=required_levels,
         theta=skill_names,
         fill='toself',
-        name='Required Proficiency Level',
+        name='所需熟练程度',
         fillcolor='rgba(255, 192, 203, 0.3)',
         line=dict(color='rgba(255, 105, 97, 0.6)')
     ))
@@ -92,7 +92,7 @@ def render_skill_radar_chart(goal):
                 visible=True,
                 range=[0, 3],
                 tickvals=[0, 1, 2, 3],
-                ticktext=['Unlearned', 'Beginner', 'Intermediate', 'Advanced'],
+                ticktext=['未学习', '初级', '中级', '高级'],
                 tickfont=dict(size=14)
             ),
             angularaxis=dict(  # Set font size for skill names (theta labels)
@@ -113,8 +113,8 @@ def render_skill_radar_chart(goal):
 
 
 def render_session_learning_timeseries(goal):
-    st.markdown("#### Session Learning Timeseries")
-    st.write("View the learning progress over time.")
+    st.markdown("#### 课程学习时间序列")
+    st.write("查看随时间变化的学习进度。")
     goal = st.session_state["goals"][st.session_state["selected_goal_id"]]
     session_data = {
         "Session": [],
@@ -152,14 +152,14 @@ def render_session_learning_timeseries(goal):
     
 
 def render_mastery_skills_timeseries(goal):
-    st.markdown("#### Mastery Skills Timeseries")
-    st.write("View the learning progress over time.")
+    st.markdown("#### 掌握技能时间序列")
+    st.write("查看随时间变化的学习进度。")
     time_values = [i * 10 for i in range(len(st.session_state['learned_skills_history'][goal['id']]))]
     char_data = pd.DataFrame({
-        'Mastery Rate': st.session_state['learned_skills_history'][goal['id']],
-        'Time': time_values,
+        '掌握率': st.session_state['learned_skills_history'][goal['id']],
+        '时间': time_values,
     })
-    st.line_chart(char_data, x='Time', y='Mastery Rate')
+    st.line_chart(char_data, x='时间', y='掌握率')
     
 
 

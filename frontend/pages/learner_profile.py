@@ -12,18 +12,18 @@ def render_learner_profile():
     # Title and introduction
     goal = st.session_state["goals"][st.session_state["selected_goal_id"]]
 
-    st.title("Learner Profile")
-    st.write("An overview of the learner's background, goals, progress, preferences, and behavioral patterns.")
+    st.title("学习者档案")
+    st.write("学习者的背景、目标、进度、偏好和行为模式概览。")
     if not goal["learner_profile"]:
-        with st.spinner('Identifying Skill Gap ...'):
-            st.info("Please complete the onboarding process to view the learner profile.")
+        with st.spinner('正在识别技能差距...'):
+            st.info("请完成入门流程以查看学习者档案。")
     else:
         try:
             render_learner_profile_info(goal)
         except Exception as e:
-            st.error("An error occurred while rendering the learner profile.")
+            st.error("渲染学习者档案时发生错误。")
             # re generate the learner profile
-            with st.spinner("Re-prepare your profile ..."):
+            with st.spinner("正在重新准备您的档案..."):
                 learner_profile = create_learner_profile(goal["learning_goal"], st.session_state["learner_information"], goal["skill_gaps"], st.session_state["llm_type"])
             goal["learner_profile"] = learner_profile
             try:
@@ -56,11 +56,11 @@ def render_learner_profile_info(goal):
     learner_profile = goal["learner_profile"]
     with st.container(border=True):
         # Learner Information
-        st.markdown("#### 👤 Learner Information")
+        st.markdown("#### 👤 学习者信息")
         st.markdown(f"<div class='section'>{learner_profile['learner_information']}</div>", unsafe_allow_html=True)
 
         # Learning Goal
-        st.markdown("#### 🎯 Learning Goal")
+        st.markdown("#### 🎯 学习目标")
         st.markdown(f"<div class='section'>{learner_profile['learning_goal']}</div>", unsafe_allow_html=True)
 
     with st.container(border=True):
@@ -76,48 +76,48 @@ def render_learner_profile_info(goal):
 def render_cognitive_status(goal):
     learner_profile = goal["learner_profile"]
     # Cognitive Status
-    st.markdown("#### 🧠 Cognitive Status")
-    st.write("**Overall Progress:**")
+    st.markdown("#### 🧠 认知状态")
+    st.write("**总体进度：**")
     st.progress(learner_profile["cognitive_status"]["overall_progress"])
-    st.markdown(f"<p class='progress-indicator'>{learner_profile['cognitive_status']['overall_progress']}% completed</p>", unsafe_allow_html=True)
+    st.markdown(f"<p class='progress-indicator'>{learner_profile['cognitive_status']['overall_progress']}% 已完成</p>", unsafe_allow_html=True)
     render_skill_info(learner_profile)
 
 def render_learning_preferences(goal):
     learner_profile = goal["learner_profile"]
-    st.markdown("#### 📚 Learning Preferences")
-    st.write(f"**Content Style:** {learner_profile['learning_preferences']['content_style']}")
-    st.write(f"**Preferred Activity Type:** {learner_profile['learning_preferences']['activity_type']}")
-    st.write(f"**Additional Notes:**")
+    st.markdown("#### 📚 学习偏好")
+    st.write(f"**内容风格：** {learner_profile['learning_preferences']['content_style']}")
+    st.write(f"**偏好的活动类型：** {learner_profile['learning_preferences']['activity_type']}")
+    st.write(f"**其他备注：**")
     st.info(learner_profile['learning_preferences']['additional_notes'])
 
 def render_behavioral_patterns(goal):
     learner_profile = goal["learner_profile"]
-    st.markdown("#### 📊 Behavioral Patterns")
-    st.write(f"**System Usage Frequency:**")
+    st.markdown("#### 📊 行为模式")
+    st.write(f"**系统使用频率：**")
     st.info(learner_profile['behavioral_patterns']['system_usage_frequency'])
-    st.write(f"**Session Duration and Engagement:**")
+    st.write(f"**课程时长和参与度：**")
     st.info(learner_profile['behavioral_patterns']['session_duration_engagement'])
-    st.write(f"**Motivational Triggers:**")
+    st.write(f"**激励触发因素：**")
     st.info(learner_profile['behavioral_patterns']['motivational_triggers'])
-    st.write(f"**Additional Notes:**")
+    st.write(f"**其他备注：**")
     st.info(learner_profile['behavioral_patterns']['additional_notes'])
 
 
 def render_additional_info_form(goal):
     with st.form(key="additional_info_form"):
-        st.markdown("#### Value Your Feedback")
-        st.info("Help us improve your learning experience by providing your feedback below.")
-        st.write("How much do you agree with the current profile?")
+        st.markdown("#### 重视您的反馈")
+        st.info("通过提供您的反馈帮助我们改善您的学习体验。")
+        st.write("您对当前档案的认同程度如何？")
         agreement_star = st.feedback("stars", key="agreement_star")
-        st.write("Do you have any suggestions or corrections?")
-        suggestions = st.text_area("Provide your suggestions here.", label_visibility="collapsed")
-        st.write("Do you have any additional information to add?")
-        additional_info = st.text_area("Provide any additional information or feedback here.", label_visibility="collapsed")
-        pdf_file = st.file_uploader("Upload a PDF with additional information (e.g., resume)", type="pdf")
+        st.write("您有任何建议或更正吗？")
+        suggestions = st.text_area("在此提供您的建议。", label_visibility="collapsed")
+        st.write("您有任何其他信息要添加吗？")
+        additional_info = st.text_area("在此提供任何其他信息或反馈。", label_visibility="collapsed")
+        pdf_file = st.file_uploader("上传包含其他信息的 PDF（例如简历）", type="pdf")
         if pdf_file is not None:
-            with st.spinner("Extracting text from PDF..."):
+            with st.spinner("正在从 PDF 提取文本..."):
                 additional_info_pdf = extract_text_from_pdf(pdf_file)
-                st.toast("✅ PDF uploaded successfully.")
+                st.toast("✅ PDF 上传成功。")
         else:
             additional_info_pdf = ""
         st.session_state["additional_info"] = {
@@ -129,7 +129,7 @@ def render_additional_info_form(goal):
             save_persistent_state()
         except Exception:
             pass
-        submit_button = st.form_submit_button("Update Profile", on_click=update_learner_profile_with_additional_info, 
+        submit_button = st.form_submit_button("更新档案", on_click=update_learner_profile_with_additional_info, 
                                               kwargs={"goal": goal, "additional_info": additional_info, }, type="primary")
         
 def update_learner_profile_with_additional_info(goal, additional_info):
@@ -141,9 +141,9 @@ def update_learner_profile_with_additional_info(goal, additional_info):
             save_persistent_state()
         except Exception:
             pass
-        st.toast("🎉 Successfully updated your profile!")
+        st.toast("🎉 档案更新成功！")
     else:
-        st.toast("❌ Failed to update your profile. Please try again.")
+        st.toast("❌ 档案更新失败。请重试。")
 
 
 render_learner_profile()
