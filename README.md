@@ -1,192 +1,95 @@
-<div align="center">
-  <p align="center">
-    <img src="resources/logo.png" alt="GenMentor Logo" width="300"/>
-  </p>
-  <p><b>LLM-powered & Goal-oriented Tutoring System</b></p>
+# 知行智航 · 智能学习导航系统
 
-  <p>
-    <a href="https://www.tianfuwang.tech/gen-mentor">Website</a> &nbsp;·&nbsp;
-    <a href="https://arxiv.org/pdf/2501.15749">Paper</a> &nbsp;·&nbsp;
-    <a href="https://gen-mentor.streamlit.app/">Demo</a> &nbsp;·&nbsp;
-    <a href="https://youtu.be/vTdtGZop-Zc">Video</a>
-  </p>
-
-</div>
+> 本项目基于 [GenMentor](https://github.com/GeminiLight/gen-mentor) 开源框架进行二次开发与深度定制。GenMentor 是由香港科技大学（广州）与微软研究院联合提出的多智能体智能辅导系统，发表于 WWW 2025。本项目在其原有框架基础上，针对国内教育场景进行了本地化适配与功能扩展，并将底层大模型全面替换为 **DeepSeek**。
 
 ---
 
-> [!IMPORTANT]  
-> :sparkles: Welcome to visit the [GenMentor website](https://www.tianfuwang.tech/gen-mentor) to learn more about our work!
+## 项目简介
 
-This is official code of our paper "*LLM-powered Multi-agent Framework for Goal-oriented Learning in Intelligent Tutoring System*", accepted by **WWW 2025 (Industry Track) as an Oral Presentation**.
+本系统是一个由大语言模型驱动的目标导向智能学习平台。系统以学习者的具体职业目标为起点，自动识别能力差距，规划个性化学习路径，并生成定制化学习内容，实现从"目标设定"到"目标达成"的完整学习闭环。
 
-In this paper, we propose GenMentor, a large language model (LLM)-powered multi-agent framework designed for goal-oriented learning in Intelligent Tutoring Systems (ITS). This framework emphasizes personalization, adaptive learning, and goal-aligned content delivery, making it a robust solution for professional and lifelong learning scenarios.
+---
 
+## 核心功能模块
 
-## 🏫 ITS Paradigm Comparison
+- 🧭 **技能差距识别**：分析学习者当前能力，精准映射目标所需技能，识别能力缺口
+- 👤 **动态学习者建模**：从认知状态、学习偏好、行为模式三个维度构建并实时更新个人画像
+- 🗓️ **个性化路径规划**：基于画像与技能差距，生成逻辑递进、动态可调的学习路径
+- 📝 **定制内容生成**：通过"探索—起草—整合"机制，生成适配学习者水平的学习文档与测验
+- 🤖 **AI对话辅导**：通过对话方式实时解答学习者疑问，提供学习支持
 
-<div align="center">
-  <p align="center">
-    <img src="resources/its-paradigms.png" alt="GenMentor Overview" width="500" style="box-shadow: 0 8px 24px rgba(0,0,0,0.15); border-radius: 8px;"/>
-  </p>
-</div>
+---
 
-| Paradigm | Typical characteristics | Primary focus |
-|---|---|---|
-| 🏫 Traditional MOOC | Static syllabus; pre-recorded lectures; fragmented learning | Broad access, low personalization |
-| 🤖 Chatbot ITS | Reactive Q&A; rule/LLM-driven; session-based help | Instant support, limited long-term adaptation |
-| 🎯 Goal-oriented ITS | Proactive planning; personalized paths; goal-aligned assessments | Targeted skill acquisition, continual adaptation |
+## 技术说明
 
+本项目使用 **DeepSeek** 作为核心大语言模型，驱动上述所有智能体模块的推理与生成任务。DeepSeek 在中文语境下具备出色的语义理解能力，适合国内教育场景的高频调用需求。
 
+---
 
+## 快速开始
 
-**🤖 Key Agent Modules**
-
-<div align="center">
-  <p align="center">
-    <img src="resources/genmentor-framework.png" alt="GenMentor Overview" width="700" style="box-shadow: 0 8px 24px rgba(0,0,0,0.15); border-radius: 8px;"/>
-  </p>
-</div>
-
-- 🧭 `Skill Gap Identifier`: Analyzes learner's current knowledge to identify gaps.
-- 👤 `Adaptive Learner Modeler`: Builds and updates learner profiles based on interactions.
-- 🗓️ `Learning Path Scheduler`: Creates personalized learning paths and schedules.
-- 📝 `Tailored Content Generator`: Produces customized learning materials and assessments.
-- 🧑‍🏫 `AI Chatbot Tutor`: Engages learners in dialogue, answering questions and providing support.
-
-**Key Demo Interfaces**
-
-<div align="center">
-  <p align="center">
-    <img src="resources/genmentor_demo_1.png" alt="GenMentor Demo Interface-1" width="400" style="box-shadow: 0 8px 24px rgba(0,0,0,0.15); border-radius: 8px; margin: 8px;"/>
-    <img src="resources/genmentor_demo_2.png" alt="GenMentor Demo Interface-2" width="400" style="box-shadow: 0 8px 24px rgba(0,0,0,0.15); border-radius: 8px; margin: 8px;"/>
-    <img src="resources/genmentor_demo_3.png" alt="GenMentor Demo Interface-3" width="400" style="box-shadow: 0 8px 24px rgba(0,0,0,0.15); border-radius: 8px; margin: 8px;"/>
-    <img src="resources/genmentor_demo_4.png" alt="GenMentor Demo Interface-4" width="400" style="box-shadow: 0 8px 24px rgba(0,0,0,0.15); border-radius: 8px; margin: 8px;"/>
-    <img src="resources/genmentor_demo_5.png" alt="GenMentor Demo Interface-5" width="400" style="box-shadow: 0 8px 24px rgba(0,0,0,0.15); border-radius: 8px; margin: 8px;"/>
-  </p>
-</div>
-
-## 🚀 Quick start
-
-Here, we briefly describe how to set up and run the GenMentor system locally. Please see more details in the respective `backend/` and `frontend/` directories.
-
-### 🛠️ Installation
-
-1. Backend environment setup
-
-```bash
-cd backend
-uv venv
-source .venv/bin/activate  # on Windows: .venv\Scripts\activate
+1.所需环境
+- 使用python 3.11
+- 已有git
+- 有anaconda
+如果本来就有python 3.11，那么就可以不使用conda来创建环境，直接使用python自带的venv的虚拟环境应该也可以（我没试过，可以去ai一下，如果用了python自带的venv的虚拟环境以下激活环境的命令不再适用）
+2.把github项目导入pycharm
+- 点击欢迎界面上的 "Get from VCS" (或者如果已经打开了项目，点菜单栏 Git -> Clone...)。
+- 在弹出的窗口中：
+  - URL: 粘贴 GitHub 的项目地址。(具体地址：https://github.com/zeze923/gen-mentor.git)
+  - Directory (目录): 点击文件夹图标，选择 D盘 或 E盘 的位置。可以在那里新建一个文件夹。
+- 点击 Clone。
+- PyCharm 会自动下载所有文件，并且按正确的结构展示
+3.配置虚拟环境
+这个项目需要 两个独立的虚拟环境：
+1. 后端环境：在 backend 文件夹里。
+2. 前端环境：在 frontend 文件夹里。
+(1) 后端(backend)环境
+- 打开终端，在项目genmentor\backend（不一定是genmentor,而是看具体的文件名）下，先创建环境
+conda create -n genmentor_backend python=3.11 -y
+- 激活环境
+conda activate genmentor_backend
+- 安装uv
+pip install uv
+- 安装uv上面的不行的话，使用conda安装（前面如果成功请跳过）
+conda install -c conda-forge uv
+- 安装依赖
 uv pip install -r requirements.txt
-```
-
-2. Frontend environment setup
-
-```bash
-cd frontend
-uv venv
-source .venv/bin/activate  # on Windows: .venv\Scripts\activate
+(2) 前端(frontend)环境
+- 退出后端环境并切换目录 
+conda deactivate
+cd ..\frontend
+- 创建conda环境
+conda create -n genmentor_frontend python=3.11 -y
+- 激活环境
+conda activate genmentor_frontend
+- 安装uv
+pip install uv
+- 安装依赖
 uv pip install -r requirements.txt
-```
-
-### ⚙️ Configuration
-
-1. Configure LLM secrets (at least one) for backend
-
-*Option A*: update a `.env` file in `backend/`
-
-```plaintext
-# Example for OpenAI:
-OPENAI_API_KEY="your-openai-api-key"
-
-# Example for DeepSeek:
-DEEPSEEK_API_KEY="your-deepseek-api-key"
-```
-
-*Option B*: export environment variables in your shell
-
-```bash
-# Example for OpenAI:
-export OPENAI_API_KEY="your-openai-api-key"
-
-# Example for DeepSeek:
-export DEEPSEEK_API_KEY="your-deepseek-api-key"
-DEEPSEEK_API_KEY="your-deepseek-api-key"
-```
-
-2. Configure api endpoint for frontend
-
-If you would like to run the backend on a different host/port, please update the API URL in `frontend/config.py`:
-
-```python
-backend_endpoint = "http://127.0.0.1:5000/"
-```
-
-### ▶️ Running Locally
-
-> [!NOTE]
-> The default ports are 5000 for backend, 8501 for frontend by default
-
-*Option A*: Manual (preferred when using separate venvs)
-
-```bash
-# start backend
-cd backend
-source .venv/bin/activate  # on Windows: .venv\Scripts\activate
+4.启动项目
+(1) 启动后端backend
+- 确保现在的终端是在后端环境：
+  路径：E:\project\backend (按照实际路径判断)
+  环境：(genmentor_backend)
+- 激活后端环境：
+conda activate genmentor_backend
+- 配置deepseek key
+  把backend下面的.env.example文件重命名成.env
+  把内容修改成如下
+    DEEPSEEK_API_KEY="sk-3a5d15d60bfd49df8760d38ad38487d6"
+    DEEPSEEK_API_BASE="https://api.deepseek.com/v1"
+- 在终端中启动命令 
+set HF_ENDPOINT=https://hf-mirror.com
 uvicorn main:app --reload --port 5000
-```
-
-```bash
-# start frontend
+ 成功标志：会看到绿色的字 Uvicorn running on http://127.0.0.1:5000，并且没有报错。(请保持这个窗口不要关闭！) 
+(2) 启动前端(frontend)
+- 打开一个新的终端窗口(在 PyCharm 里点 + 号)。
+- 切换到前端目录：
 cd frontend
-source .venv/bin/activate  # on Windows: .venv\Scripts\activate
+- 激活前端环境： 
+conda activate genmentor_frontend
+- 启动命令
+set NO_PROXY=localhost,127.0.0.1(请求本地直连)
 streamlit run main.py --server.port 8501
-```
-
-*Option B*: Helper scripts (single shell; assumes uvicorn/streamlit on PATH)
-
-```bash
-# start backend
-bash ./scripts/start_backend.sh [PORT]
-
-# start frontend
-bash ./scripts/start_frontend.sh [PORT]
-
-# stop all
-bash ./scripts/stop_all.sh
-```
-
-### 🌐 Accessing the App
-
-Finally, you can access:
-
-- Backend API: http://127.0.0.1:5000/
-- Frontend UI: http://127.0.0.1:8501/
-
-## 🚀 Demo Version of Web Application
-
-Welcome to explore the demo version of the GenMentor web application:
-
-[GenMentor Web App](https://gen-mentor.streamlit.app/)
-
-This interactive demo showcases GenMentor's core functionalities, including:
-
-- Skill Gap Identification: Precisely map learner goals to required skills.
-- Adaptive Learner Modeling: Capture learner progress and preferences.
-- Personalized Content Delivery: Generate tailored learning resources.
-
-You could also watch the demo video for a quick overview (click the image below):
-
-[![Video Preview](https://img.youtube.com/vi/vTdtGZop-Zc/0.jpg)](https://youtu.be/vTdtGZop-Zc)
-
-## 📚 Citation
-
-```bibtex
-@inproceedings{wang2025llm,
-  title={LLM-powered Multi-agent Framework for Goal-oriented Learning in Intelligent Tutoring System},
-  author={Wang, Tianfu and Zhan, Yi and Lian, Jianxun and Hu, Zhengyu and Yuan, Nicholas Jing and Zhang, Qi and Xie, Xing and Xiong, Hui},
-  booktitle={Companion Proceedings of the ACM Web Conference},
-  year={2025}
-}
-```
+ 成功标志：浏览器应该会自动弹 GenMentor 的网页界面( http://0.0.0.0:8501 ),但是这个项目在浏览器里面是无法打开的，我们需要把这个网址改成http://127.0.0.1:8501 
