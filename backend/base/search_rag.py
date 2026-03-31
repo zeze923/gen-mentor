@@ -105,26 +105,25 @@ class SearchRagManager:
         retrieval = self.vectorstore.similarity_search(query, k=k)
         return retrieval
 
-    def invoke(self, query: str) -> List[Document]:
+    def invoke(self, query: str, use_web_search: bool = True) -> List[Document]:
         import logging
         logger = logging.getLogger(__name__)
         
         try:
-            results = self.search(query)
-            documents = [res.document for res in results if res.document is not None]
-            
-            if documents:
-                try:
-                    self.add_documents(documents=documents)
-                except Exception as e:
-                    logger.warning(f"Failed to add documents to vectorstore: {str(e)}")
-                    # 继续执行，即使添加文档失败
+            if use_web_search:
+                results = self.search(query)
+                documents = [res.document for res in results if res.document is not None]
+                
+                if documents:
+                    try:
+                        self.add_documents(documents=documents)
+                    except Exception as e:
+                        logger.warning(f"Failed to add documents to vectorstore: {str(e)}")
             
             retrieved_docs = self.retrieve(query)
             return retrieved_docs
         except Exception as e:
             logger.error(f"Error in SearchRagManager.invoke: {str(e)}", exc_info=True)
-            # 返回空列表而不是抛出异常
             return []
 
 

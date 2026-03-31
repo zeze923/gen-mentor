@@ -48,6 +48,25 @@ def load_persistent_state():
     try:
         data = json.loads(path.read_text(encoding="utf-8"))
     except Exception:
+        # 数据损坏：备份并重置为空 JSON，避免后续页面解析报错
+        try:
+            path.parent.mkdir(parents=True, exist_ok=True)
+        except Exception:
+            pass
+        try:
+            from datetime import datetime
+            ts = datetime.now().strftime("%Y%m%d-%H%M%S")
+            backup_path = path.parent / f"data_store.corrupt-{ts}.json"
+            try:
+                backup_path.write_text(path.read_text(encoding="utf-8"), encoding="utf-8")
+            except Exception:
+                pass
+        except Exception:
+            pass
+        try:
+            path.write_text("{}", encoding="utf-8")
+        except Exception:
+            pass
         return False
     for k, v in data.items():
         if k in PERSIST_KEYS:
@@ -67,7 +86,10 @@ def save_persistent_state():
                 pass
     try:
         path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
+        # 原子写入：先写临时文件，成功后替换，避免中途写入造成的半截 JSON
+        tmp_path = path.with_suffix(".json.tmp")
+        tmp_path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
+        tmp_path.replace(path)
         return True
     except Exception:
         return False

@@ -26,7 +26,7 @@ def render_skill_gap():
         st.title("技能差距")
         st.write("查看并确认您的技能差距。")
 
-        if not goal["skill_gaps"]:
+        if not goal.get("skill_gaps"):
             render_identifying_skill_gap(goal)
         else:
             num_skills = len(goal["skill_gaps"])

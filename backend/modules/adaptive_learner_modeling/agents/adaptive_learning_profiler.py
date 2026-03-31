@@ -21,6 +21,7 @@ logger = logging.getLogger(__name__)
 
 class LearnerProfileInitializationPayload(BaseModel):
     """Payload for initializing a learner profile (validated)."""
+    """学习者初始信息"""
 
     learning_goal: str = Field(...)
     learner_information: Union[str, Dict[str, Any], Mapping[str, Any]]

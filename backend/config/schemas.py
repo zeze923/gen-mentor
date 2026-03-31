@@ -22,6 +22,17 @@ class EmbeddingConfig:
 class SearchConfig:
     provider: str = "duckduckgo"  # tavily, serper, bing, duckduckgo, brave, searx, you
     max_results: int = 5
+    # SearXNG optional fields
+    base_url: str | None = None
+    engines: list[str] | None = None
+    categories: list[str] | None = None
+    language: str | None = None
+    timeout: int = 20
+    verify_ssl: bool = False
+    # Loader behavior
+    load_page_content: bool = False
+    loader_timeout: int = 10
+    loader_concurrency: int = 4
 
 
 @dataclass

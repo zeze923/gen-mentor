@@ -13,6 +13,8 @@ def convert_json_output(output: str) -> Dict[str, Any]:
     Returns:
         Structured JSON output
     """
+    import re
+    
     output = output.strip()
     if output.startswith("```json"):
         output = output[7:].strip()
@@ -20,6 +22,15 @@ def convert_json_output(output: str) -> Dict[str, Any]:
         output = output[:-3].strip()
     if output.endswith("```json"):
         output = output[:-7].strip()
+    
+    # 移除JSON字符串中的非法控制字符（保留\n, \r, \t）
+    def sanitize_control_chars(text: str) -> str:
+        # 移除ASCII控制字符（除了\n, \r, \t）
+        sanitized = re.sub(r'[\x00-\x08\x0b\x0c\x0e-\x1f]', '', text)
+        return sanitized
+    
+    output = sanitize_control_chars(output)
+    
     try:
         # Attempt to parse the output as JSON
         return json.loads(output)
@@ -29,6 +40,7 @@ def convert_json_output(output: str) -> Dict[str, Any]:
         end_idx = output.rfind('}') + 1
         if start_idx != -1 and end_idx != 0:
             json_str = output[start_idx:end_idx]
+            json_str = sanitize_control_chars(json_str)
             return json.loads(json_str)
         else:
             raise json.JSONDecodeError("No valid JSON found in response", output, 0)

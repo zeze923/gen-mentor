@@ -57,6 +57,7 @@ class TutorChatPayload(BaseModel):
 	learner_profile: Any = ""
 	messages: Any
 	use_search: bool = True
+	use_web_search: bool = True
 	top_k: int = 5
 	external_resources: Optional[str] = None
 
@@ -90,7 +91,7 @@ class AITutorChatbot(BaseAgent):
 		if self.search_rag_manager is not None and query:
 			try:
 				if data.get("use_search", True):
-					docs = self.search_rag_manager.invoke(query)
+					docs = self.search_rag_manager.invoke(query, use_web_search=data.get("use_web_search", True))
 				else:
 					# Vectorstore-only retrieval
 					docs = self.search_rag_manager.retrieve(query, k=max(1, int(data.get("top_k", 5))))
@@ -116,6 +117,7 @@ def chat_with_tutor_with_llm(
 	*,
 	search_rag_manager: Optional[SearchRagManager] = None,
 	use_search: bool = True,
+	use_web_search: bool = True,
 	top_k: int = 5,
 ):
 	"""Convenience helper to run an AI tutor chat turn with optional RAG.
@@ -129,6 +131,7 @@ def chat_with_tutor_with_llm(
 		"learner_profile": learner_profile,
 		"messages": messages,
 		"use_search": use_search,
+		"use_web_search": use_web_search,
 		"top_k": top_k,
 	}
 	return agent.chat(payload)

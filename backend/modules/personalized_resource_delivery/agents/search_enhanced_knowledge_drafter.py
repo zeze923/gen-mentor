@@ -40,10 +40,14 @@ class SearchEnhancedKnowledgeDrafter(BaseAgent):
 
     name: str = "SearchEnhancedKnowledgeDrafter"
 
-    def __init__(self, model: Any, *, search_rag_manager: Optional[SearchRagManager] = None, use_search: bool = True):
+    def __init__(self, model: Any, *, search_rag_manager: Optional[SearchRagManager] = None, use_search: bool = True, use_web_search: bool = True):
         super().__init__(model=model, system_prompt=search_enhanced_knowledge_drafter_system_prompt, jsonalize_output=True)
-        self.search_rag_manager = search_rag_manager or SearchRagManager.from_config(default_config)
+        if use_search:
+            self.search_rag_manager = search_rag_manager or SearchRagManager.from_config(default_config)
+        else:
+            self.search_rag_manager = None
         self.use_search = use_search
+        self.use_web_search = use_web_search
 
     def draft(self, payload: KnowledgeDraftPayload | Mapping[str, Any] | str):
         import logging
@@ -61,8 +65,8 @@ class SearchEnhancedKnowledgeDrafter(BaseAgent):
                 knowledge_point = data.get("knowledge_point") or {}
                 knowledge_point_name = str(knowledge_point.get('name', '')).strip()
                 query = f"{session_title} {knowledge_point_name}".strip()
-                logger.info(f"Searching for: {query}")
-                docs = self.search_rag_manager.invoke(query)
+                logger.info(f"Searching for: {query} (use_web_search={self.use_web_search})")
+                docs = self.search_rag_manager.invoke(query, use_web_search=self.use_web_search)
                 context = format_docs(docs)
                 if context:
                     ext = data.get("external_resources") or ""
@@ -88,6 +92,7 @@ def draft_knowledge_point_with_llm(
     knowledge_points,
     knowledge_point,
     use_search: bool = True,
+    use_web_search: bool = True,
     *,
     search_rag_manager: Optional[SearchRagManager] = None,
 ):
@@ -96,7 +101,7 @@ def draft_knowledge_point_with_llm(
     logger = logging.getLogger(__name__)
     
     try:
-        drafter = SearchEnhancedKnowledgeDrafter(llm, search_rag_manager=search_rag_manager, use_search=use_search)
+        drafter = SearchEnhancedKnowledgeDrafter(llm, search_rag_manager=search_rag_manager, use_search=use_search, use_web_search=use_web_search)
         payload = {
             "learner_profile": learner_profile,
             "learning_path": learning_path,
@@ -118,6 +123,7 @@ def draft_knowledge_points_with_llm(
     knowledge_points,
     allow_parallel: bool = True,
     use_search: bool = True,
+    use_web_search: bool = True,
     max_workers: int = 8,
     *,
     search_rag_manager: Optional[SearchRagManager] = None,
@@ -137,6 +143,8 @@ def draft_knowledge_points_with_llm(
             logger.warning(f"Failed to initialize SearchRagManager: {e}. Continuing without search.")
             use_search = False
             search_rag_manager = None
+    elif not use_search:
+        search_rag_manager = None
     
     def draft_one(kp):
         try:
@@ -148,6 +156,7 @@ def draft_knowledge_points_with_llm(
                 knowledge_points,
                 kp,
                 use_search=use_search,
+                use_web_search=use_web_search,
                 search_rag_manager=search_rag_manager,
             )
         except Exception as e:

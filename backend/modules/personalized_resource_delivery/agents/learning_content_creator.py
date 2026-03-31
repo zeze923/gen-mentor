@@ -75,6 +75,7 @@ def create_learning_content_with_llm(
     with_quiz=True,
     max_workers=3,
     use_search=True,
+    use_web_search=True,
     output_markdown=True,
     method_name="genmentor",
     *,
@@ -97,6 +98,7 @@ def create_learning_content_with_llm(
             knowledge_points,
             allow_parallel=allow_parallel,
             use_search=use_search,
+            use_web_search=use_web_search,
             max_workers=max_workers,
             search_rag_manager=search_rag_manager,
         )

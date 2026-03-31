@@ -1,7 +1,7 @@
 import json
 import httpx
 import streamlit as st
-from config import backend_endpoint, use_mock_data, use_search
+from config import backend_endpoint, use_mock_data, use_search, use_web_search
 
 API_NAMES = {
     "chat_with_tutor": "chat-with-tutor",
@@ -24,23 +24,38 @@ API_NAMES = {
 }
 
 
-def make_post_request(api_name, data, mock_data_path=None, timeout=500):
+@st.cache_resource
+def _get_http_client():
+    timeout = httpx.Timeout(connect=10.0, read=300.0, write=30.0, pool=None)
+    limits = httpx.Limits(max_connections=20, max_keepalive_connections=10, keepalive_expiry=30.0)
+    return httpx.Client(timeout=timeout, limits=limits)
+
+
+def make_post_request(api_name, data, mock_data_path=None, timeout=300):
     """Send a POST request to the backend API, or return mock data if enabled."""
     if use_mock_data and mock_data_path:
         return json.load(open(mock_data_path))
 
     backend_url = f"{backend_endpoint}{api_name}"
-    try:
-        response = httpx.post(backend_url, json=data, timeout=timeout)
-        
-        if response.status_code == 200:
-            return response.json()
-        else:
-            st.write("Failed to fetch data. Status code:", response.status_code)
-            return None
-    except Exception as e:
-        st.write("Failed to fetch data. Error:", e)
-        return {}
+    client = _get_http_client()
+    last_err = None
+    for _ in range(2):
+        try:
+            response = client.post(backend_url, json=data)
+            if response.status_code == 200:
+                try:
+                    return response.json()
+                except Exception:
+                    st.write("Failed to parse JSON response.")
+                    return {}
+            else:
+                st.write("Failed to fetch data. Status code:", response.status_code)
+                return None
+        except Exception as e:
+            last_err = e
+            continue
+    st.write("Failed to fetch data. Error:", last_err)
+    return {}
 
 def get_available_models(backend_endpoint):
     backend_url = f"{backend_endpoint}list-llm-models"
@@ -61,6 +76,8 @@ def chat_with_tutor(chat_messages, learner_profile, llm_type="gpt4o", method_nam
         "learner_profile": str(learner_profile),
         "llm_type": str(llm_type),
         "method_name": str(method_name),
+        "use_search": use_search,
+        "use_web_search": use_web_search,
     }
     response = make_post_request(API_NAMES["chat_with_tutor"], data, "./assets/data_example/ai)tutor_chat.json")
     return response.get("response") if response else None
@@ -167,6 +184,7 @@ def draft_knowledge_point(learner_profile, learning_path, learning_session, know
         "knowledge_points": str(knowledge_points),
         "knowledge_point": str(knowledge_point),
         "use_search": use_search,
+        "use_web_search": use_web_search,
         "llm_type": str(llm_type),
         "method_name": str(method_name),
     }
@@ -182,6 +200,7 @@ def draft_knowledge_points(learner_profile, learning_path, learning_session, kno
         "knowledge_points": str(knowledge_points),
         "allow_parallel": allow_parallel,
         "use_search": use_search,
+        "use_web_search": use_web_search,
         "llm_type": str(llm_type),
         "method_name": str(method_name),
     }

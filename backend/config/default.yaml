@@ -15,9 +15,19 @@ embedding:
   model_name: sentence-transformers/all-mpnet-base-v2
 
 search:
-  provider: duckduckgo
-  max_results: 5
+  provider: searx
+  max_results: 4
   loader_type: web
+  # 启用 SearXNG 示例（将 provider 改为 searx，并设置 base_url）
+  base_url: http://127.0.0.1:8080
+  # engines: []          # 可选，限制具体引擎，如 ["duckduckgo", "wikipedia"]
+  # categories: []       # 可选，类别，如 ["general","news"]
+  # language: zh-CN      # 可选，语言代码
+  timeout: 8            # SearXNG 请求超时秒数（更短以尽快返回）
+  # verify_ssl: false    # 可选，是否校验证书
+  load_page_content: false     # 是否抓取搜索结果页面正文（默认关闭以提速）
+  loader_timeout: 8            # 单页抓取超时（秒）
+  loader_concurrency: 4        # 抓取并发度
 
 vectorstore:
   persist_directory: data/vectorstore

@@ -22,6 +22,60 @@ This is official code of our paper "*LLM-powered Multi-agent Framework for Goal-
 
 In this paper, we propose GenMentor, a large language model (LLM)-powered multi-agent framework designed for goal-oriented learning in Intelligent Tutoring Systems (ITS). This framework emphasizes personalization, adaptive learning, and goal-aligned content delivery, making it a robust solution for professional and lifelong learning scenarios.
 
+## 🇨🇳 快速开始（本地演示 + 自建 SearXNG）
+
+以下是简体中文的快速上手说明，包含本地 SearXNG 搜索与前后端启动：
+
+1) 使用 Docker 启动本地 SearXNG
+
+```powershell
+docker pull ghcr.io/searxng/searxng:latest
+docker run -d --name searxng -p 8080:8080 ^
+  -e SEARXNG_SECRET=localdevsecret ^
+  -e BASE_URL=http://localhost:8080/ ^
+  -v "E:\github\searxng-config:/etc/searxng" ghcr.io/searxng/searxng:latest
+```
+
+2) 配置后端使用 SearXNG（已默认）
+
+编辑 `backend/config/default.yaml`（本仓库已默认）：
+
+```yaml
+search:
+  provider: searx
+  base_url: http://127.0.0.1:8080
+  max_results: 4
+  loader_type: web
+  timeout: 8
+  load_page_content: false
+  loader_timeout: 8
+  loader_concurrency: 4
+```
+
+3) 安装依赖并启动后端
+
+```powershell
+pip install -r backend/requirements.txt
+# 如需加速 HuggingFace 下载（当前会话生效）
+$env:HF_ENDPOINT="https://hf-mirror.com"
+$env:HUGGINGFACE_HUB_CACHE="E:\hf-cache"
+$env:HF_HUB_ENABLE_HF_TRANSFER="1"
+python backend\main.py
+```
+
+4) 启动前端
+
+```powershell
+cd frontend
+streamlit run main.py --server.port 18501
+```
+
+5) 前端启用“使用搜索”后发起请求，即可通过本地 SearXNG 联网。
+
+说明：
+- 关闭正文抓取可显著提速；需要更丰富内容时再开启 `search.load_page_content: true`
+- 若首次下载嵌入模型较慢，请按上面的镜像环境变量配置
+
 
 ## 🏫 ITS Paradigm Comparison
 

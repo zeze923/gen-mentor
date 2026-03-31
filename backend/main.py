@@ -63,7 +63,8 @@ async def chat_with_autor(request: ChatWithAutorRequest):
             converted_messages,
             learner_profile,
             search_rag_manager=search_rag_manager,
-            use_search=True,
+            use_search=request.use_search,
+            use_web_search=request.use_web_search,
         )
         return {"response": response}
     except Exception as e:
@@ -278,8 +279,9 @@ async def draft_knowledge_points(request: KnowledgePointsDraftingRequest):
     knowledge_points = request.knowledge_points
     use_search = request.use_search
     allow_parallel = request.allow_parallel
+    use_web_search = request.use_web_search
     try:
-        knowledge_drafts = draft_knowledge_points_with_llm(llm, learner_profile, learning_path, learning_session, knowledge_points, allow_parallel, use_search)
+        knowledge_drafts = draft_knowledge_points_with_llm(llm, learner_profile, learning_path, learning_session, knowledge_points, allow_parallel, use_search, use_web_search)
         return {"knowledge_drafts": knowledge_drafts}
     except Exception as e:
         import traceback
@@ -327,11 +329,12 @@ async def tailor_knowledge_content(request: TailoredContentGenerationRequest):
     learner_profile = request.learner_profile
     learning_session = request.learning_session
     use_search = request.use_search
+    use_web_search = request.use_web_search
     allow_parallel = request.allow_parallel
     with_quiz = request.with_quiz
     try:
         tailored_content = create_learning_content_with_llm(
-            llm, learner_profile, learning_path, learning_session, allow_parallel=allow_parallel, with_quiz=with_quiz, use_search=use_search
+            llm, learner_profile, learning_path, learning_session, allow_parallel=allow_parallel, with_quiz=with_quiz, use_search=use_search, use_web_search=use_web_search
         )
         return {"tailored_content": tailored_content}
     except Exception as e:

@@ -11,9 +11,10 @@ class BaseRequest(BaseModel):
 
 
 class ChatWithAutorRequest(BaseRequest):
-
     messages: str
     learner_profile: str = ""
+    use_search: bool = True
+    use_web_search: bool = True
 
 
 class LearningGoalRefinementRequest(BaseRequest):
@@ -131,6 +132,7 @@ class TailoredContentGenerationRequest(BaseModel):
     learning_path: str
     learning_session: str
     use_search: bool = True
+    use_web_search: bool = True
     allow_parallel: bool = True
     with_quiz: bool = True
 
@@ -150,6 +152,7 @@ class KnowledgePointDraftingRequest(BaseModel):
     knowledge_points: str
     knowledge_point: str
     use_search: bool
+    use_web_search: bool = True
 
 
 class KnowledgePointsDraftingRequest(BaseModel):
@@ -160,6 +163,7 @@ class KnowledgePointsDraftingRequest(BaseModel):
     knowledge_points: str
     use_search: bool
     allow_parallel: bool
+    use_web_search: bool = True
 
 
 class LearningDocumentIntegrationRequest(BaseModel):

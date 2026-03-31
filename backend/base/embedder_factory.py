@@ -16,7 +16,21 @@ class EmbedderFactory:
         match model_provider.lower():
             case "huggingface":
                 from langchain_huggingface import HuggingFaceEmbeddings
-                return HuggingFaceEmbeddings(model_name=model)
+                import os
+                
+                # Check if model is a local path, otherwise use it as name
+                # You can set an environment variable or a default local path
+                local_model_path = os.environ.get("LOCAL_EMBEDDING_MODEL_PATH")
+                if local_model_path and os.path.exists(local_model_path):
+                    model = local_model_path
+                
+                # If model is a common name, it will be downloaded once to ~/.cache/huggingface/hub
+                # To make it truly "local", users can point to a directory
+                return HuggingFaceEmbeddings(
+                    model_name=model,
+                    model_kwargs={'device': 'cpu'}, # Can be changed to 'cuda' if GPU available
+                    encode_kwargs={'normalize_embeddings': True}
+                )
             case "openai":
                 from langchain_openai import OpenAIEmbeddings
                 return OpenAIEmbeddings(model=model)
