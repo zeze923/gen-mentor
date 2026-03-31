@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  genmentor:
+    build: .
+    container_name: genmentor-app
+    ports:
+      - "8501:8501" # Frontend
+      - "5000:5000" # Backend
+    environment:
+      - HF_ENDPOINT=https://hf-mirror.com
+      - HF_HUB_ENABLE_HF_TRANSFER=1
+      - DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY:-""} # Optional: if not provided, the app will try to read from config
+    depends_on:
+      - searxng
+    restart: always
+
+  searxng:
+    image: ghcr.io/searxng/searxng:latest
+    container_name: genmentor-searxng
+    ports:
+      - "8080:8080"
+    environment:
+      - SEARXNG_SECRET=localdevsecret
+      - BASE_URL=http://localhost:8080/
+    # If you have a custom settings.yml, mount it here
+    # volumes:
+    #   - ./searxng-config:/etc/searxng
+    restart: always
