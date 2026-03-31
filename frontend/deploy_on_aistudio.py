@@ -5,6 +5,7 @@ import os
 def install_dependencies():
     print("正在安装项目依赖，请稍候...")
     # 使用国内镜像源加速安装
+    # 在 frontend 目录下运行，将安装 frontend/requirements.txt 中的包
     try:
         subprocess.check_call([
             sys.executable, "-m", "pip", "install", 
@@ -23,11 +24,11 @@ if __name__ == "__main__":
     # 注意：这里我们调用 streamlit 的命令行工具来运行您的前端入口
     import streamlit.web.cli as stcli
     
-    # 设置运行参数：运行 frontend/main.py
+    # 设置运行参数：因为脚本在 frontend 目录下，直接运行 main.py
     sys.argv = [
         "streamlit", 
         "run", 
-        "frontend/main.py", 
+        "main.py", 
         "--server.port", "8501", 
         "--server.address", "0.0.0.0"
     ]
