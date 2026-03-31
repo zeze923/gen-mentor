@@ -1,3 +1,31 @@
+import subprocess
+import sys
+
+def install_missing_packages():
+    """Attempt to install missing packages at runtime."""
+    required_packages = [
+        "streamlit-float",
+        "streamlit-card",
+        "streamlit-chat",
+        "streamlit-extras",
+        "st-pages",
+        "streamlit-option-menu",
+        "streamlit-on-Hover-tabs",
+        "extra-streamlit-components",
+        "pdfplumber",
+        "httpx"
+    ]
+    for package in required_packages:
+        package_name = package.split('==')[0].replace('-', '_')
+        try:
+            __import__(package_name)
+        except ImportError:
+            print(f"Installing missing package: {package}")
+            subprocess.check_call([sys.executable, "-m", "pip", "install", package])
+
+# Run installation check before anything else
+install_missing_packages()
+
 import streamlit as st
 import time
 from utils.state import initialize_session_state, change_selected_goal_id, save_persistent_state, load_persistent_state, _get_data_store_path
