@@ -1,30 +1,38 @@
 import subprocess
 import sys
+import os
 
-def install_missing_packages():
-    """Attempt to install missing packages at runtime."""
-    required_packages = [
-        "streamlit-float",
-        "streamlit-card",
-        "streamlit-chat",
-        "streamlit-extras",
-        "st-pages",
-        "streamlit-option-menu",
-        "streamlit-on-Hover-tabs",
-        "extra-streamlit-components",
-        "pdfplumber",
-        "httpx"
-    ]
-    for package in required_packages:
-        package_name = package.split('==')[0].replace('-', '_')
+def install_dependencies():
+    """Attempt to install dependencies from requirements.txt at runtime."""
+    # Use a file-based flag to avoid repeated installations in the same deployment
+    flag_file = "/tmp/dependencies_installed.txt" if os.name != 'nt' else os.path.join(os.environ.get('TEMP', ''), 'dependencies_installed.txt')
+    
+    if not os.path.exists(flag_file):
+        print("检测到环境缺少依赖，正在自动安装，请稍候...")
         try:
-            __import__(package_name)
-        except ImportError:
-            print(f"Installing missing package: {package}")
-            subprocess.check_call([sys.executable, "-m", "pip", "install", package])
+            # Determine requirements.txt path relative to this file
+            current_dir = os.path.dirname(__file__)
+            req_path = os.path.join(current_dir, "requirements.txt")
+            
+            # If not in frontend/requirements.txt, try root requirements.txt
+            if not os.path.exists(req_path):
+                req_path = os.path.join(os.path.dirname(current_dir), "requirements.txt")
 
-# Run installation check before anything else
-install_missing_packages()
+            if os.path.exists(req_path):
+                subprocess.check_call([
+                    sys.executable, "-m", "pip", "install", 
+                    "-r", req_path, 
+                    "-i", "https://pypi.tuna.tsinghua.edu.cn/simple"
+                ])
+                with open(flag_file, "w") as f:
+                    f.write("installed")
+                print("依赖安装成功！请刷新页面或等待应用自动重载。")
+                # Force a rerun if possible, though simply finishing the script might work
+        except Exception as e:
+            print(f"自动安装依赖失败: {e}")
+
+# Run installation check
+install_dependencies()
 
 import streamlit as st
 import time
