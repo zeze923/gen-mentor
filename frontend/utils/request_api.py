@@ -72,8 +72,8 @@ def get_available_models(backend_endpoint):
 
 def chat_with_tutor(chat_messages, learner_profile, llm_type="gpt4o", method_name="genmentor"):
     data = {
-        "messages": str(chat_messages),
-        "learner_profile": str(learner_profile),
+        "messages": json.dumps(chat_messages, ensure_ascii=False),
+        "learner_profile": json.dumps(learner_profile, ensure_ascii=False) if isinstance(learner_profile, dict) else str(learner_profile),
         "llm_type": str(llm_type),
         "method_name": str(method_name),
         "use_search": use_search,

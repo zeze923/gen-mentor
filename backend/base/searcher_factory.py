@@ -254,8 +254,8 @@ class SearchRunner:
                     # Note: This is a simplified fallback. In a real scenario, you'd want to 
                     # pass the original config to SearcherFactory.create
                     try:
-                        # We try to use the same config but change provider
-                        temp_searcher = SearcherFactory.create(provider=provider, base_url="http://127.0.0.1:8080")
+                        # Use fallback provider without requiring SearXNG base_url
+                        temp_searcher = SearcherFactory.create(provider=provider)
                         raw_results = temp_searcher.results(query, max_results=self.max_search_results)
                     except Exception as fallback_err:
                         logger.warning(f"Fallback to {provider} failed: {fallback_err}")

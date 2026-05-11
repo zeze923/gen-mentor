@@ -25,7 +25,7 @@ class LearningGoalRefinementRequest(BaseRequest):
 
 class Goal2KnowledgePrestrionRequest(BaseRequest):
 
-    learning_goal: str = Form(...),
+    learning_goal: str = Form(...)
     cv: UploadFile = File(...)
 
 

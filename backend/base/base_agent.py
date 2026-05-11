@@ -81,6 +81,11 @@ class BaseAgent:
         """Invoke the agent with the given input text."""
         input_prompt = self._build_prompt(input_dict, task_prompt=task_prompt)
         raw_output = self._agent.invoke(input_prompt)
+
+        # Normalize LangChain response format across versions
+        if isinstance(raw_output, dict) and 'messages' not in raw_output and 'output' in raw_output:
+            raw_output = {'messages': [{'content': raw_output['output']}]}
+
         output = preprocess_response(
             raw_output, only_text=True, exclude_think=self.exclude_think, json_output=self.jsonalize_output
         )

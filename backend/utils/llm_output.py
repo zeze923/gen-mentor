@@ -6,44 +6,46 @@ from typing import Dict, Any
 def convert_json_output(output: str) -> Dict[str, Any]:
     """
     Convert raw JSON output from the LLM into structured format.
-
-    Args:
-        output: The JSON output from the LLM
-        
-    Returns:
-        Structured JSON output
+    Uses robust multi-strategy extraction to handle long content with special characters.
     """
-    import re
-    
     output = output.strip()
+
+    # Remove markdown code block markers
     if output.startswith("```json"):
         output = output[7:].strip()
     if output.endswith("```"):
         output = output[:-3].strip()
     if output.endswith("```json"):
         output = output[:-7].strip()
-    
-    # 移除JSON字符串中的非法控制字符（保留\n, \r, \t）
-    def sanitize_control_chars(text: str) -> str:
-        # 移除ASCII控制字符（除了\n, \r, \t）
-        sanitized = re.sub(r'[\x00-\x08\x0b\x0c\x0e-\x1f]', '', text)
-        return sanitized
-    
-    output = sanitize_control_chars(output)
-    
+
+    # Remove illegal control characters (preserve \n, \r, \t)
+    output = re.sub(r'[\x00-\x08\x0b\x0c\x0e-\x1f]', '', output)
+
+    # Strategy 1: Direct parse
     try:
-        # Attempt to parse the output as JSON
         return json.loads(output)
     except json.JSONDecodeError:
-        # If parsing fails, try to extract JSON from the output string
-        start_idx = output.find('{')
-        end_idx = output.rfind('}') + 1
-        if start_idx != -1 and end_idx != 0:
-            json_str = output[start_idx:end_idx]
-            json_str = sanitize_control_chars(json_str)
-            return json.loads(json_str)
-        else:
-            raise json.JSONDecodeError("No valid JSON found in response", output, 0)
+        pass
+
+    # Strategy 2: Brace-tracking extraction
+    # Find the outermost JSON object by tracking brace depth
+    brace_count = 0
+    json_start = -1
+    for i, ch in enumerate(output):
+        if ch == '{':
+            if brace_count == 0:
+                json_start = i
+            brace_count += 1
+        elif ch == '}':
+            brace_count -= 1
+            if brace_count == 0 and json_start >= 0:
+                candidate = output[json_start:i + 1]
+                try:
+                    return json.loads(candidate)
+                except json.JSONDecodeError:
+                    continue
+
+    raise json.JSONDecodeError("No valid JSON found in response", output, 0)
 
 def get_text_from_response(response):
     """Extract text from the response object."""

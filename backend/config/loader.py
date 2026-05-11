@@ -26,7 +26,10 @@ def load_config(
 
     with initialize_config_module(version_base=None, config_module=config_module):
         cfg = compose(config_name=config_name)
-        _ = OmegaConf.structured(AppConfig)
+        try:
+            _ = OmegaConf.structured(AppConfig)
+        except Exception:
+            pass
         return cfg
 
 

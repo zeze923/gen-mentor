@@ -12,6 +12,7 @@ logger = logging.getLogger(__name__)
 
 
 class LLMFactory:
+    _instance_cache: Dict[str, BaseChatModel] = {}
 
     @staticmethod
     def create(
@@ -22,7 +23,7 @@ class LLMFactory:
         api_key: Optional[str] = None,
         **kwargs
     ) -> BaseChatModel:
-        """Initialize LLM client with model parameters.
+        """Initialize LLM client with model parameters, using instance caching."""
 
         Args:
             model: Model name (e.g., 'gpt-4', 'claude-3-5-sonnet-20241022')
@@ -40,6 +41,11 @@ class LLMFactory:
             model = "claude-3-5-sonnet-20241022"
             model_provider = model_provider or "anthropic"
 
+        # Build cache key and return cached instance if available
+        cache_key = f"{model_provider}:{model}:{temperature}"
+        if cache_key in LLMFactory._instance_cache:
+            return LLMFactory._instance_cache[cache_key]
+
         config_kwargs = {
             "model": model,
             "model_provider": model_provider,
@@ -56,6 +62,7 @@ class LLMFactory:
             config_kwargs["api_key"] = "dummy-key-for-vllm"
 
         llm = init_chat_model(**config_kwargs)
+        LLMFactory._instance_cache[cache_key] = llm
         return llm
 
     @classmethod

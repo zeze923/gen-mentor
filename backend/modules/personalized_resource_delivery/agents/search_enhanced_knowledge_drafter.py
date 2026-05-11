@@ -16,6 +16,16 @@ from modules.personalized_resource_delivery.schemas import KnowledgeDraft
 from config.loader import default_config
 
 
+# Module-level shared SearchRagManager to avoid reloading embedding model per parallel task
+_search_rag_manager_instance = None
+
+def _get_shared_search_rag_manager():
+    global _search_rag_manager_instance
+    if _search_rag_manager_instance is None:
+        _search_rag_manager_instance = SearchRagManager.from_config(default_config)
+    return _search_rag_manager_instance
+
+
 class KnowledgeDraftPayload(BaseModel):
     learner_profile: Any
     learning_path: Any
@@ -138,7 +148,7 @@ def draft_knowledge_points_with_llm(
         knowledge_points = ast.literal_eval(knowledge_points)
     if search_rag_manager is None and use_search:
         try:
-            search_rag_manager = SearchRagManager.from_config(default_config)
+            search_rag_manager = _get_shared_search_rag_manager()
         except Exception as e:
             logger.warning(f"Failed to initialize SearchRagManager: {e}. Continuing without search.")
             use_search = False

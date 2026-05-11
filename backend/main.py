@@ -55,7 +55,10 @@ async def chat_with_autor(request: ChatWithAutorRequest):
     learner_profile = request.learner_profile
     try:
         if isinstance(request.messages, str) and request.messages.strip().startswith("["):
-            converted_messages = ast.literal_eval(request.messages)
+            try:
+                converted_messages = ast.literal_eval(request.messages)
+            except (ValueError, SyntaxError):
+                converted_messages = json.loads(request.messages)
         else:
             return JSONResponse(status_code=400, content={"detail": "messages must be a JSON array string"})
         response = chat_with_tutor_with_llm(

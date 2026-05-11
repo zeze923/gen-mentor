@@ -39,8 +39,8 @@ class SearchRagManager:
     ) -> "SearchRagManager":
         config = ensure_config_dict(config)
         embedder = EmbedderFactory.create(
-            model=config.get("embedder", {}).get("model_name", "sentence-transformers/all-mpnet-base-v2"),
-            model_provider=config.get("embedder", {}).get("provider", "huggingface"),
+            model=config.get("embedding", {}).get("model_name", "sentence-transformers/all-mpnet-base-v2"),
+            model_provider=config.get("embedding", {}).get("provider", "huggingface"),
         )
 
         text_splitter = TextSplitterFactory.create(
